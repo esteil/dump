@@ -157,12 +157,12 @@ namespace :dump do
 
   namespace :local do
     desc "Shorthand for dump:local:create" << DumpRake::Env.explain_variables_for_command(:create)
-    task :default, :roles => :db, :only => {:primary => true} do
+    task :default, :roles => :snapshot, :only => {:primary => true} do
       create
     end
 
     desc "Create local dump" << DumpRake::Env.explain_variables_for_command(:create)
-    task :create, :roles => :db, :only => {:primary => true} do
+    task :create, :roles => :snapshot, :only => {:primary => true} do
       print_and_return_or_fail do
         with_additional_tags('local') do
           run_local(dump_command(:create))
@@ -171,22 +171,22 @@ namespace :dump do
     end
 
     desc "Restore local dump" << DumpRake::Env.explain_variables_for_command(:restore)
-    task :restore, :roles => :db, :only => {:primary => true} do
+    task :restore, :roles => :snapshot, :only => {:primary => true} do
       run_local(dump_command(:restore))
     end
 
     desc "Versions of local dumps" << DumpRake::Env.explain_variables_for_command(:versions)
-    task :versions, :roles => :db, :only => {:primary => true} do
+    task :versions, :roles => :snapshot, :only => {:primary => true} do
       print run_local(dump_command(:versions, :show_size => true))
     end
 
     desc "Cleanup local dumps" << DumpRake::Env.explain_variables_for_command(:cleanup)
-    task :cleanup, :roles => :db, :only => {:primary => true} do
+    task :cleanup, :roles => :snapshot, :only => {:primary => true} do
       print run_local(dump_command(:cleanup))
     end
 
     desc "Upload dump" << DumpRake::Env.explain_variables_for_command(:transfer)
-    task :upload, :roles => :db, :only => {:primary => true} do
+    task :upload, :roles => :snapshot, :only => {:primary => true} do
       file = DumpRake::Env.with_env(:summary => nil) do
         last_part_of_last_line(run_local(dump_command(:versions)))
       end
@@ -198,12 +198,12 @@ namespace :dump do
 
   namespace :remote do
     desc "Shorthand for dump:remote:create" << DumpRake::Env.explain_variables_for_command(:create)
-    task :default, :roles => :db, :only => {:primary => true} do
+    task :default, :roles => :snapshot, :only => {:primary => true} do
       remote.create
     end
 
     desc "Create remote dump" << DumpRake::Env.explain_variables_for_command(:create)
-    task :create, :roles => :db, :only => {:primary => true} do
+    task :create, :roles => :snapshot, :only => {:primary => true} do
       print_and_return_or_fail do
         with_additional_tags('remote') do
           run_remote("cd #{current_path}; #{dump_command(:create, :rake => fetch_rake, :RAILS_ENV => fetch_rails_env, :PROGRESS_TTY => '+')}")
@@ -212,22 +212,22 @@ namespace :dump do
     end
 
     desc "Restore remote dump" << DumpRake::Env.explain_variables_for_command(:restore)
-    task :restore, :roles => :db, :only => {:primary => true} do
+    task :restore, :roles => :snapshot, :only => {:primary => true} do
       run_remote("cd #{current_path}; #{dump_command(:restore, :rake => fetch_rake, :RAILS_ENV => fetch_rails_env, :PROGRESS_TTY => '+')}")
     end
 
     desc "Versions of remote dumps" << DumpRake::Env.explain_variables_for_command(:versions)
-    task :versions, :roles => :db, :only => {:primary => true} do
+    task :versions, :roles => :snapshot, :only => {:primary => true} do
       print run_remote("cd #{current_path}; #{dump_command(:versions, :rake => fetch_rake, :RAILS_ENV => fetch_rails_env, :PROGRESS_TTY => '+', :show_size => true)}")
     end
 
     desc "Cleanup of remote dumps" << DumpRake::Env.explain_variables_for_command(:cleanup)
-    task :cleanup, :roles => :db, :only => {:primary => true} do
+    task :cleanup, :roles => :snapshot, :only => {:primary => true} do
       print run_remote("cd #{current_path}; #{dump_command(:cleanup, :rake => fetch_rake, :RAILS_ENV => fetch_rails_env, :PROGRESS_TTY => '+')}")
     end
 
     desc "Download dump" << DumpRake::Env.explain_variables_for_command(:transfer)
-    task :download, :roles => :db, :only => {:primary => true} do
+    task :download, :roles => :snapshot, :only => {:primary => true} do
       file = DumpRake::Env.with_env(:summary => nil) do
         last_part_of_last_line(run_remote("cd #{current_path}; #{dump_command(:versions, :rake => fetch_rake, :RAILS_ENV => fetch_rails_env, :PROGRESS_TTY => '+')}"))
       end
@@ -240,7 +240,7 @@ namespace :dump do
 
   namespace :mirror do
     desc "Creates local dump, uploads and restores on remote" << DumpRake::Env.explain_variables_for_command(:mirror)
-    task :up, :roles => :db, :only => {:primary => true} do
+    task :up, :roles => :snapshot, :only => {:primary => true} do
       auto_backup = if auto_backup?
         with_additional_tags('auto-backup') do
           remote.create
@@ -260,7 +260,7 @@ namespace :dump do
     end
 
     desc "Creates remote dump, downloads and restores on local" << DumpRake::Env.explain_variables_for_command(:mirror)
-    task :down, :roles => :db, :only => {:primary => true} do
+    task :down, :roles => :snapshot, :only => {:primary => true} do
       auto_backup = if auto_backup?
         with_additional_tags('auto-backup') do
           local.create
@@ -281,7 +281,7 @@ namespace :dump do
   end
 
   desc "Creates remote dump and downloads to local (desc defaults to 'backup')" << DumpRake::Env.explain_variables_for_command(:backup)
-  task :backup, :roles => :db, :only => {:primary => true} do
+  task :backup, :roles => :snapshot, :only => {:primary => true} do
     file = with_additional_tags('backup') do
       remote.create
     end
