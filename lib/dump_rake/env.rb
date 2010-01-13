@@ -11,6 +11,7 @@ class DumpRake
       :backup => %w(BACKUP AUTOBACKUP AUTO_BACKUP),
       :transfer_via => %w(TRANSFER_VIA),
       :show_size => %w(SHOW_SIZE),
+      :skip_tables => %w(SKIP_TABLES)
     }.freeze
 
     def self.dictionary
